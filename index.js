@@ -14,7 +14,7 @@ function main () {
 			if (err || response.statusCode !== 200) {
 				return next(err);
 			}
-			
+			var mime = response.headers['content-type'];
 			var links = [];
 			var tag;
 			var link;
@@ -51,7 +51,7 @@ function main () {
 			parser.write(body);
 			parser.end();
 
-			res.json({title, links});
+			res.json({title, links, mime});
 		})
 	});
 

@@ -23,7 +23,7 @@ var settings = {
 	defaultEdgeColor: 'rgba(255,255,255,0.0125)',
 	edgeColor: 'default',
 	drawLabels: true,
-	defaultEdgeLabelColor: 'rgba(255,255,255,0)',
+	defaultEdgeLabelColor: 'rgba(255,255,255,0.05)',
 	defaultEdgeLabelActiveColor: 'rgba(255,255,255,1)',
 	drawEdgeLabels: true,
 	defaultEdgeType: 'def',
@@ -79,12 +79,12 @@ s.bind('clickNode', function (e) {
 });
 
 setTimeout(() => {
-	s.startForceAtlas2({gravity: 2});
-}, 1000);
+	s.startForceAtlas2({gravity: 9.82, slowDown: 100});
+}, 5000);
 
 setTimeout(() => {
-	s.stopForceAtlas2({gravity: 2});
-}, 10000);
+	s.stopForceAtlas2();
+}, 60000);
 
 var edgeId = 0;
 
@@ -94,6 +94,13 @@ function crawl (url) {
 	return fetch (fetchUrl)
 		.then(response => {
 			return response.json();
+		})
+		.then(data => {
+			return new Promise(resolve => {
+				setTimeout(() => {
+					return resolve(data);
+				}, 1000)
+			})
 		})
 		.then(data => {
 			var node = s.graph.nodes(url);
@@ -108,6 +115,8 @@ function crawl (url) {
 				};
 				
 				s.graph.addNode(node);
+			} else {
+				node.label = data.title;
 			}
 
 			data.links.forEach(link => {
@@ -133,7 +142,8 @@ function crawl (url) {
 					size: 1,
 					source: url,
 					target: link.href,
-					type: 'line'
+					type: 'line',
+					label: link.text
 				};
 
 				s.graph.addEdge(edge);
@@ -143,5 +153,18 @@ function crawl (url) {
 		});
 }
 
-crawl('https://debitoor.com/')
-	.then();
+var url = getParameterByName('url');
+
+crawl(url);
+
+function getParameterByName(name, url) {
+    if (!url) {
+      url = window.location.href;
+    }
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
