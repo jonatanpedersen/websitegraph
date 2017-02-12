@@ -59,19 +59,19 @@ s.bind('clickNode', function (e) {
 
 	s.graph.nodes().forEach(function (n) {
 		if (toKeep[n.id]) {
-			n.color = 'rgba(255,255,255,0.125)';
+			n.color = 'rgba(255,255,255,1)';
 		} else {
-			n.color = settings.defaultNodeColor;
+			n.color = 'rgba(255,0,0,0.0.5)';
 		}
 	});
 
 	s.graph.edges().forEach(function (e) {
 		if (toKeep[e.source] && toKeep[e.target]) {
 			e.active = true;
-			e.color = 'rgba(255,255,255,0.25)';
+			e.color = 'rgba(255,255,255,0.125)';
 		} else {
 			e.active = false;
-			e.color = settings.defaultEdgeColor;
+			e.color = 'rgba(255,0,0,0.0125)';
 		}
 	});
 
@@ -79,12 +79,12 @@ s.bind('clickNode', function (e) {
 });
 
 setTimeout(() => {
-	s.startForceAtlas2({gravity: 9.82, slowDown: 100});
-}, 5000);
+	s.startForceAtlas2({gravity: 9.82, slowDown: 10});
+}, 2500);
 
 setTimeout(() => {
 	s.stopForceAtlas2();
-}, 60000);
+}, 30000);
 
 var edgeId = 0;
 
@@ -99,7 +99,7 @@ function crawl (url) {
 			return new Promise(resolve => {
 				setTimeout(() => {
 					return resolve(data);
-				}, 1000)
+				}, 100)
 			})
 		})
 		.then(data => {
@@ -108,16 +108,16 @@ function crawl (url) {
 			if (!node) {
 				node = {
 					id: url,
-					label: data.title,
 					size: 1,
 					x: Math.random(),
 					y: Math.random(),
 				};
 				
 				s.graph.addNode(node);
-			} else {
-				node.label = data.title;
 			}
+			
+			node.label = data.title;
+			node.originalColor = settings.defaultNodeColor;
 
 			data.links.forEach(link => {
 				var linkNode = s.graph.nodes(link.href);
@@ -129,25 +129,40 @@ function crawl (url) {
 						size: 1,
 						x: Math.random(),
 						y: Math.random(),
+						color: 'rgba(255,0,0,0.5)',
+						originalColor: 'rgba(255,0,0,0.5)'
 					};
 					
 					s.graph.addNode(linkNode);
 					crawl(link.href);
 				} else {
 					linkNode.size++;
+					delete linkNode.color;
 				}
 
-				const edge = {
-					id: ++edgeId,
-					size: 1,
-					source: url,
-					target: link.href,
-					type: 'line',
-					label: link.text
-				};
+				const edgeId = `${url}::${link.href}`;
 
-				s.graph.addEdge(edge);
+				var edge = s.graph.edges(edgeId);
+
+				if (!edge) {
+					const edge = {
+						id: edgeId,
+						size: 1,
+						source: url,
+						target: link.href,
+						type: 'line',
+						label: link.text,
+						color: settings.defaultEdgeColor
+					};
+
+					s.graph.addEdge(edge);
+				} else {
+					edge.size++;
+					edge.label += ', ' + link.text;
+				}
 			});
+
+			s.refresh();
 		});
 }
 

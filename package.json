@@ -19,6 +19,7 @@
   "dependencies": {
     "express": "^4.14.1",
     "htmlparser2": "^3.9.2",
+    "mime": "^1.3.4",
     "request": "^2.79.0"
   },
   "engines": {

@@ -2,35 +2,43 @@ const express = require('express');
 const request = require('request');
 const htmlparser2 = require('htmlparser2');
 const url = require('url');
+const mime = require('mime');
 
 function main () {
 	const app = express();
 	const port = process.env.PORT || 8877;
+	
+	mime.default_type = 'text/html';
 
 	app.get('/fetch', (req, res, next) => {
 		const baseUrl = req.query.url;
+		const parsedBaseUrl = url.parse(baseUrl);
 
 		request(baseUrl, (err, response, body) => {
 			if (err || response.statusCode !== 200) {
 				return next(err);
 			}
-			var mime = response.headers['content-type'];
+			var mimeType = response.headers['content-type'] && response.headers['content-type'].split(' ')[0];
 			var links = [];
 			var tag;
 			var link;
-			var title;
+			var title = '';
 
 			const parser = new htmlparser2.Parser({
 				onopentag: (name, attrs) => {
 					tag = name;
 					link = null;
+
 					
 					if (name === 'a' && attrs.href) {
 						const linkUrl = url.resolve(baseUrl, attrs.href);
+						const parsedLinkUrl = url.parse(linkUrl);
+						const linkMimeType = mime.lookup(linkUrl);
 
-						if (url.parse(linkUrl).host === url.parse(baseUrl).host && url.parse(linkUrl).protocol === url.parse(baseUrl).protocol) {
+						if (linkMimeType === 'text/html' && !parsedLinkUrl.hash && parsedLinkUrl.host === parsedBaseUrl.host && parsedLinkUrl.protocol === parsedBaseUrl.protocol) {
 							link = {
-								href: linkUrl
+								href: linkUrl,
+								mimeType: linkMimeType
 							};
 
 							links.push(link);
@@ -43,7 +51,7 @@ function main () {
 					}
 
 					if (tag === 'title') {
-						title = text;
+						title += text;
 					}
 				}
 			});
@@ -51,7 +59,7 @@ function main () {
 			parser.write(body);
 			parser.end();
 
-			res.json({title, links, mime});
+			res.json({title, links, mimeType});
 		})
 	});
 
