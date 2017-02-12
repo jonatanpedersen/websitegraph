@@ -147,8 +147,6 @@ function crawl (url) {
 				};
 
 				s.graph.addEdge(edge);
-
-				console.log(edge);
 			});
 		});
 }
