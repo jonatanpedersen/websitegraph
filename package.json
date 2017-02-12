@@ -1,0 +1,25 @@
+{
+  "name": "websitegraph",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonatanpedersen/websitegraph.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jonatanpedersen/websitegraph/issues"
+  },
+  "homepage": "https://github.com/jonatanpedersen/websitegraph#readme",
+  "dependencies": {
+    "express": "^4.14.1",
+    "htmlparser2": "^3.9.2",
+    "request": "^2.79.0",
+    "wigo": "^2.1.1"
+  }
+}
