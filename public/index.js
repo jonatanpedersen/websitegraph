@@ -108,14 +108,14 @@ function crawl (url) {
 			if (!node) {
 				node = {
 					id: url,
-					size: 1,
-					x: Math.random(),
-					y: Math.random(),
+					size: 10,
+					x: Math.random() * 100,
+					y: Math.random() * 100,
 				};
-				
+
 				s.graph.addNode(node);
 			}
-			
+
 			node.label = data.title;
 			node.originalColor = settings.defaultNodeColor;
 
@@ -126,17 +126,17 @@ function crawl (url) {
 					linkNode = {
 						id: link.href,
 						label: link.text,
-						size: 1,
-						x: Math.random(),
-						y: Math.random(),
+						size: 10,
+						x: Math.random() * 100,
+						y: Math.random() * 100,
 						color: 'rgba(255,0,0,0.5)',
 						originalColor: 'rgba(255,0,0,0.5)'
 					};
-					
+
 					s.graph.addNode(linkNode);
 					crawl(link.href);
 				} else {
-					linkNode.size++;
+					linkNode.size += 0.1;
 					delete linkNode.color;
 				}
 
@@ -147,7 +147,7 @@ function crawl (url) {
 				if (!edge) {
 					const edge = {
 						id: edgeId,
-						size: 1,
+						size: 10,
 						source: url,
 						target: link.href,
 						type: 'line',
@@ -157,7 +157,7 @@ function crawl (url) {
 
 					s.graph.addEdge(edge);
 				} else {
-					edge.size++;
+					edge.size += 0.1;
 					edge.label += ', ' + link.text;
 				}
 			});
