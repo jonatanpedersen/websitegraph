@@ -79,12 +79,12 @@ s.bind('clickNode', function (e) {
 });
 
 setTimeout(() => {
-	s.startForceAtlas2({gravity: 9.82, slowDown: 10});
-}, 2500);
+	s.startForceAtlas2({gravity: 9.82, slowDown: 1});
+}, 10000);
 
 setTimeout(() => {
 	s.stopForceAtlas2();
-}, 30000);
+}, 60000);
 
 var edgeId = 0;
 

@@ -7,7 +7,7 @@ const mime = require('mime');
 function main () {
 	const app = express();
 	const port = process.env.PORT || 8877;
-	
+
 	mime.default_type = 'text/html';
 
 	app.get('/fetch', (req, res, next) => {
@@ -23,14 +23,20 @@ function main () {
 			var tag;
 			var link;
 			var title = '';
+			var level = 0;
+			var main = null;
 
 			const parser = new htmlparser2.Parser({
 				onopentag: (name, attrs) => {
+					level++;
 					tag = name;
 					link = null;
 
-					
-					if (name === 'a' && attrs.href) {
+					if (name === 'main') {
+						main = level;
+					}
+
+					if (main && name === 'a' && attrs.href) {
 						const linkUrl = url.resolve(baseUrl, attrs.href);
 						const parsedLinkUrl = url.parse(linkUrl);
 						const linkMimeType = mime.lookup(linkUrl);
@@ -44,6 +50,13 @@ function main () {
 							links.push(link);
 						}
 					}
+				},
+				ontagclose: () => {
+					if (main === level) {
+						main = null;
+					}
+
+					level--;
 				},
 				ontext: text => {
 					if (tag === 'a' && link) {
